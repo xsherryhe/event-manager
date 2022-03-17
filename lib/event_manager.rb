@@ -2,6 +2,10 @@ require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
 
+def clean_phone_number(phone_number)
+  /^1?\d{10}$/ =~ phone_number.gsub(/[^\d]/, '') ? phone_number : 'N/A'
+end
+
 def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, '0')[0...5]
 end
@@ -35,6 +39,7 @@ contents = CSV.open('event_attendees.csv', headers: true, header_converters: :sy
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
+  phone_number = clean_phone_number(row[:homephone])
   zipcode = clean_zipcode(row[:zipcode])
   legislators = legislators_by_zipcode(zipcode)
   form_letter = erb_template.result(binding)
