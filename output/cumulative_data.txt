@@ -1,2 +1,3 @@
 
 Peak registration hours: 1:00PM to 2:00PM, 4:00PM to 5:00PM
+Peak registration days of the week: Wednesday

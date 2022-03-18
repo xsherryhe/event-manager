@@ -31,20 +31,30 @@ def save_thank_you_letter(id, form_letter)
   File.open("output/thanks_#{id}.html", 'w') { |file| file.puts(form_letter) }
 end
 
+def peak(times)
+  times.group_by { |time| times.count(time) }
+       .max.last.uniq.join(', ')
+end
+
 def peak_registration_hours(reg_times)
   hour_intervals = reg_times.map do |reg_time|
     [reg_time, reg_time + 3600].map { |time| time.strftime("%-I:00%p") }
                                .join(' to ')
   end
-
-  hour_intervals.group_by { |interval| hour_intervals.count(interval) }
-                .max.last.uniq.join(', ')
+  peak(hour_intervals)
 end
 
-def save_cumulative_data(peak_hours)
+def peak_registration_days_of_week(reg_times)
+  days_of_week = reg_times.map { |reg_time| reg_time.strftime("%A") }
+  peak(days_of_week)
+end
+
+def save_cumulative_data(peak_hours, peak_days_of_week)
+  data = {"hours" => peak_hours, "days of the week" => peak_days_of_week }
   Dir.mkdir('output') unless Dir.exist?('output')
   File.open("output/cumulative_data.txt", 'w') do |file|
-    file.write("\r\nPeak registration hours: #{peak_hours}")
+    file.puts("\r\n")
+    file.puts(data.map { |time_unit, peak| "Peak registration #{time_unit}: #{peak}"}.join("\r\n"))
   end
 end
 
@@ -69,4 +79,5 @@ contents.each do |row|
 end
 
 peak_hours = peak_registration_hours(reg_times)
-save_cumulative_data(peak_hours)
+peak_days_of_week = peak_registration_days_of_week(reg_times)
+save_cumulative_data(peak_hours, peak_days_of_week)
